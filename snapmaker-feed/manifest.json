@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "items": [
-    { "type": "image", "src": "media/start.jpg", "title": "viipa ülesse" },
-    { "type": "video", "src": "media/1.mov", "title": "Samm 1: Käivita" },
-    { "type": "image", "src": "media/003.mp4", "title": "Aseta oma töö" },
-    { "type": "video", "src": "media/004.mp4", "title": "Ava programm.." }
-  ]
-}
