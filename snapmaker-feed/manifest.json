@@ -1,9 +1,9 @@
 {
   "version": 1,
   "items": [
-    { "type": "image", "src": "media/001.mp4", "title": "Samm 1: Käivita" },
-    { "type": "video", "src": "media/002.mp4", "title": "Samm 2: Aseta materjal" },
-    { "type": "image", "src": "media/003.mp4", "title": "Samm 3: Seadistus Lubanis" },
-    { "type": "video", "src": "media/004.mp4", "title": "Samm 4: Testlõige" }
+    { "type": "image", "src": "media/start.jpg", "title": "viipa ülesse" },
+    { "type": "video", "src": "media/1.mov", "title": "Samm 1: Käivita" },
+    { "type": "image", "src": "media/003.mp4", "title": "Aseta oma töö" },
+    { "type": "video", "src": "media/004.mp4", "title": "Ava programm.." }
   ]
 }
