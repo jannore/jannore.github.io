@@ -1,4 +1,9 @@
 (function () {
+  // ✅ CHANGE ONLY IF REPO NAME IS DIFFERENT
+  var OWNER = "jannore";
+  var REPO = "snapmaker-feed";
+  var MEDIA_PATH = "media";
+
   var items = [];
   var idx = 0;
   var usingA = true;
@@ -14,7 +19,6 @@
 
   var topProgressText = document.getElementById("topProgressText");
   var topProgressFill = document.getElementById("topProgressFill");
-
 
   var toast = document.getElementById("toast");
 
@@ -36,10 +40,8 @@
   }
 
   function absolutize(src) {
-    // allow relative paths in manifest
     if (!src) return "";
     if (/^https?:\/\//i.test(src)) return src;
-    // resolve relative to current page
     var a = document.createElement("a");
     a.href = src;
     return a.href;
@@ -64,14 +66,10 @@
       v.src = src;
       v.controls = true;
 
-      // TikTok feel
       v.loop = true;
-
-      // Autoplay on modern browsers usually requires muted
       v.muted = true;
       v.autoplay = true;
 
-      // iOS inline
       v.playsInline = true;
       v.setAttribute("playsinline", "playsinline");
 
@@ -101,13 +99,12 @@
 
   function setMeta() {
     if (!items.length) {
-      metaLeft.textContent = "Ei leidnud ühtegi kirjet (manifest.json).";
+      metaLeft.textContent = "Ei leidnud ühtegi faili kaustast /media.";
       metaRight.textContent = "";
       setProgress();
       openLink.style.display = "none";
       return;
     }
-
     var it = items[idx];
     metaLeft.textContent = (it.title || it.src || "");
     metaRight.textContent = (idx + 1) + " / " + items.length;
@@ -121,7 +118,6 @@
       setMeta();
       return;
     }
-
     renderInto(slideA, items[idx]);
     slideA.style.transform = "translateY(0)";
     slideB.style.transform = "translateY(100%)";
@@ -144,12 +140,10 @@
 
     renderInto(nextSlide, items[nextIdx]);
 
-    // place next
     nextSlide.style.transition = "none";
     nextSlide.style.transform = (dir === 1) ? "translateY(100%)" : "translateY(-100%)";
-    nextSlide.offsetHeight; // reflow
+    nextSlide.offsetHeight;
 
-    // animate
     nextSlide.style.transition = "transform 220ms ease";
     currentSlide.style.transition = "transform 220ms ease";
     nextSlide.style.transform = "translateY(0)";
@@ -165,10 +159,8 @@
   function next() { transition(1); }
   function prev() { transition(-1); }
 
-
   // Swipe
   var startY = null;
-
   wrap.addEventListener("touchstart", function (e) {
     if (!e.touches || !e.touches.length) return;
     startY = e.touches[0].clientY;
@@ -184,35 +176,78 @@
     if (dy < 0) next(); else prev();
   }, { passive: true });
 
-  // Wheel (desktop)
+  // Wheel
   wrap.addEventListener("wheel", function (e) {
     if (e.deltaY > 0) next();
     else if (e.deltaY < 0) prev();
   });
 
-  // Load manifest
-  fetch("manifest.json", { cache: "no-store" })
-    .then(function (r) {
-      if (!r.ok) throw new Error("manifest.json HTTP " + r.status);
-      return r.json();
+  // --------- NEW: load media list from GitHub API ---------
+  function extractLeadingNumber(name) {
+    // "001_foo.mp4" -> 1, "12.jpg" -> 12, "foo.mp4" -> Infinity
+    var m = String(name || "").match(/^(\d+)/);
+    return m ? parseInt(m[1], 10) : 999999999;
+  }
+
+  function guessTypeFromName(name) {
+    name = (name || "").toLowerCase();
+    if (/\.(mp4|webm|mov)$/i.test(name)) return "video";
+    return "image";
+  }
+
+  function toTitle(name) {
+    // strip extension
+    var base = String(name || "").replace(/\.[^/.]+$/, "");
+    return base;
+  }
+
+  function loadFromGithub() {
+    // List contents of /media via GitHub REST API
+    var api = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + MEDIA_PATH;
+
+    fetch(api, {
+      headers: { "Accept": "application/vnd.github+json" },
+      cache: "no-store"
     })
-    .then(function (data) {
-      var list = (data && data.items) ? data.items : [];
-      // keep only valid items
-      items = [];
-      for (var i = 0; i < list.length; i++) {
-        var it = list[i];
-        if (!it || !it.type || !it.src) continue;
-        if (it.type !== "image" && it.type !== "video") continue;
-        items.push(it);
-      }
-      idx = 0;
-      showInitial();
-    })
-    .catch(function (err) {
-      metaLeft.textContent = "VIGA: " + (err && err.message ? err.message : String(err));
-      metaRight.textContent = "";
-      setProgress();
-      openLink.style.display = "none";
-    });
+      .then(function (r) {
+        if (!r.ok) throw new Error("GitHub API HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (list) {
+        // list: array of {name, download_url, type:'file'}
+        var out = [];
+        for (var i = 0; i < list.length; i++) {
+          var f = list[i];
+          if (!f || f.type !== "file") continue;
+
+          var name = f.name || "";
+          // allow only common media extensions
+          if (!/\.(jpg|jpeg|png|gif|mp4|webm|mov)$/i.test(name)) continue;
+
+          out.push({
+            type: guessTypeFromName(name),
+            src: f.download_url,     // direct file URL
+            title: toTitle(name),
+            order: extractLeadingNumber(name)
+          });
+        }
+
+        out.sort(function (a, b) {
+          if (a.order !== b.order) return a.order - b.order;
+          return String(a.title).localeCompare(String(b.title));
+        });
+
+        items = out;
+        idx = 0;
+        showInitial();
+      })
+      .catch(function (err) {
+        metaLeft.textContent = "VIGA: " + (err && err.message ? err.message : String(err));
+        metaRight.textContent = "";
+        setProgress();
+        openLink.style.display = "none";
+      });
+  }
+
+  loadFromGithub();
 })();
