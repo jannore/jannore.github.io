@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "items": [
+    { "type": "image", "src": "media/001.jpg", "title": "Samm 1: Ohutus" },
+    { "type": "video", "src": "media/002.mp4", "title": "Samm 2: Fookuse seadmine" },
+    { "type": "image", "src": "media/003.jpg", "title": "Samm 3: Seadistus Lubanis" },
+    { "type": "video", "src": "media/004.mp4", "title": "Samm 4: Testlõige" }
+  ]
+}
