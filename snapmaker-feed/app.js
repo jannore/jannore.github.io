@@ -15,8 +15,6 @@
   var topProgressText = document.getElementById("topProgressText");
   var topProgressFill = document.getElementById("topProgressFill");
 
-  var btnPrev = document.getElementById("btnPrev");
-  var btnNext = document.getElementById("btnNext");
 
   var toast = document.getElementById("toast");
 
@@ -167,9 +165,6 @@
   function next() { transition(1); }
   function prev() { transition(-1); }
 
-  // Buttons
-  btnNext.addEventListener("click", next);
-  btnPrev.addEventListener("click", prev);
 
   // Swipe
   var startY = null;
