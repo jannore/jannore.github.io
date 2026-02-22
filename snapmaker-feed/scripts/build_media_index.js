@@ -18,12 +18,12 @@ function guessType(ext) {
 }
 
 function titleFromName(name) {
-  return name.replace(/\.[^/.]+$/, ""); // remove extension
+  return name.replace(/\.[^/.]+$/, "");
 }
 
 function main() {
   if (!fs.existsSync(MEDIA_DIR)) {
-    console.error("No media/ directory found.");
+    console.error("No media/ directory found at:", MEDIA_DIR);
     process.exit(1);
   }
 
@@ -31,6 +31,11 @@ function main() {
     .filter(d => d.isFile())
     .map(d => d.name)
     .filter(name => allowed.has(path.extname(name).toLowerCase()));
+
+  if (files.length === 0) {
+    console.error("media/ exists but contains no supported files.");
+    process.exit(1);
+  }
 
   const items = files.map(name => {
     const ext = path.extname(name);
@@ -43,12 +48,10 @@ function main() {
   }).sort((a, b) => {
     if (a.order !== b.order) return a.order - b.order;
     return a.title.localeCompare(b.title);
-  }).map(({ order, ...rest }) => rest); // drop order in output
+  }).map(({ order, ...rest }) => rest);
 
-  const out = { version: 1, items };
-
-  fs.writeFileSync(OUT_FILE, JSON.stringify(out, null, 2) + "\n", "utf8");
-  console.log(`Wrote ${OUT_FILE} with ${items.length} items`);
+  fs.writeFileSync(OUT_FILE, JSON.stringify({ version: 1, items }, null, 2) + "\n", "utf8");
+  console.log(`Wrote media_index.json with ${items.length} items`);
 }
 
 main();
