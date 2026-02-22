@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "type": "image",
+      "src": "media/01-stardipilt.jpg",
+      "title": "01-stardipilt"
+    },
+    {
+      "type": "video",
+      "src": "media/1.mp4",
+      "title": "1"
+    },
+    {
+      "type": "video",
+      "src": "media/2.mp4",
+      "title": "2"
+    },
+    {
+      "type": "video",
+      "src": "media/3.mp4",
+      "title": "3"
+    },
+    {
+      "type": "video",
+      "src": "media/4.mp4",
+      "title": "4"
+    },
+    {
+      "type": "video",
+      "src": "media/5.mp4",
+      "title": "5"
+    },
+    {
+      "type": "video",
+      "src": "media/6.mp4",
+      "title": "6"
+    },
+    {
+      "type": "video",
+      "src": "media/7.mp4",
+      "title": "7"
+    },
+    {
+      "type": "video",
+      "src": "media/8.mp4",
+      "title": "8"
+    },
+    {
+      "type": "video",
+      "src": "media/9.mp4",
+      "title": "9"
+    },
+    {
+      "type": "video",
+      "src": "media/10.mp4",
+      "title": "10"
+    },
+    {
+      "type": "video",
+      "src": "media/11.mp4",
+      "title": "11"
+    },
+    {
+      "type": "video",
+      "src": "media/12.mp4",
+      "title": "12"
+    },
+    {
+      "type": "video",
+      "src": "media/13.mp4",
+      "title": "13"
+    },
+    {
+      "type": "video",
+      "src": "media/14.mp4",
+      "title": "14"
+    }
+  ]
+}
