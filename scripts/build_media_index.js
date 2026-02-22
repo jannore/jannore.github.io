@@ -1,8 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
-const MEDIA_DIR = path.join(process.cwd(), "media");
-const OUT_FILE = path.join(process.cwd(), "media_index.json");
+const PROJECT_DIR = path.join(process.cwd(), "snapmaker-feed");
+const MEDIA_DIR = path.join(PROJECT_DIR, "media");
+const OUT_FILE = path.join(PROJECT_DIR, "media_index.json");
 
 const allowed = new Set([".jpg", ".jpeg", ".png", ".gif", ".mp4", ".webm", ".mov"]);
 
@@ -22,8 +23,12 @@ function titleFromName(name) {
 }
 
 function main() {
+  if (!fs.existsSync(PROJECT_DIR)) {
+    console.error("No snapmaker-feed/ directory found at:", PROJECT_DIR);
+    process.exit(1);
+  }
   if (!fs.existsSync(MEDIA_DIR)) {
-    console.error("No media/ directory found at:", MEDIA_DIR);
+    console.error("No snapmaker-feed/media/ directory found at:", MEDIA_DIR);
     process.exit(1);
   }
 
@@ -33,7 +38,7 @@ function main() {
     .filter(name => allowed.has(path.extname(name).toLowerCase()));
 
   if (files.length === 0) {
-    console.error("media/ exists but contains no supported files.");
+    console.error("snapmaker-feed/media exists but contains no supported files.");
     process.exit(1);
   }
 
@@ -41,6 +46,7 @@ function main() {
     const ext = path.extname(name);
     return {
       type: guessType(ext),
+      // IMPORTANT: this path is relative to snapmaker-feed/ page
       src: "media/" + name,
       title: titleFromName(name),
       order: leadingNumber(name)
@@ -51,7 +57,7 @@ function main() {
   }).map(({ order, ...rest }) => rest);
 
   fs.writeFileSync(OUT_FILE, JSON.stringify({ version: 1, items }, null, 2) + "\n", "utf8");
-  console.log(`Wrote media_index.json with ${items.length} items`);
+  console.log(`Wrote ${OUT_FILE} with ${items.length} items`);
 }
 
 main();
