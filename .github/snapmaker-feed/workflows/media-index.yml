@@ -1,0 +1,35 @@
+name: Build media index
+
+on:
+  push:
+    paths:
+      - "media/**"
+      - "scripts/build_media_index.js"
+      - ".github/workflows/media-index.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build media_index.json
+        run: node scripts/build_media_index.js
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add media_index.json
+          git diff --cached --quiet || git commit -m "Auto-build media_index.json"
+          git push
