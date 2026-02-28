@@ -52,10 +52,10 @@
 
     var messages = [
       "Tubli! Jätka samas vaimus 💪",
-      "Väga hästi – järgmine samm on juba lähedal ✨",
-      "Super! Hoia fookus peal 🎯",
-      "Nice! Sa liigud kindlalt edasi 🚀",
-      "Hästi tehtud! Peaaegu valmis 🔥"
+      "Väga hästi – ainult mõned sammud veel!",
+      "Super töö siiani! Hoia fookust!",
+      "Nice! Sa liigud kindlalt edasi!",
+      "Hästi tehtud! Peaaegu valmis!"
     ];
 
     var out = [];
@@ -81,7 +81,7 @@
     out.push({
       type: "final",
       title: "Valmis! 🎉",
-      message: "Tubli töö — oled juhendi läbi teinud. Võid nüüd iseseisvalt tegutseda! ✅"
+      message: "Tubli töö — oled juhendi läbi teinud. Oskad nüüd iseseisvalt tegutseda! ✅"
     });
 
     return out;
