@@ -33,8 +33,13 @@
     },
     {
       "type": "video",
-      "src": "media/6.mp4",
-      "title": "6"
+      "src": "media/6_1.mp4",
+      "title": "6_1"
+    },
+    {
+      "type": "video",
+      "src": "media/6_2.mp4",
+      "title": "6_2"
     },
     {
       "type": "video",
