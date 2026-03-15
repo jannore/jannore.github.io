@@ -2,9 +2,9 @@
   "version": 1,
   "items": [
     {
-      "type": "image",
-      "src": "media/01-stardipilt.jpg",
-      "title": "01-stardipilt"
+      "type": "video",
+      "src": "media/01-avaklipp.mp4",
+      "title": "01-avaklipp"
     },
     {
       "type": "video",
