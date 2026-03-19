@@ -3,7 +3,6 @@
   var idx = 0;
   var usingA = true;
 
-  // ✅ progress only counts real steps (image/video)
   var mediaPositions = [];
   var totalMedia = 0;
 
@@ -20,6 +19,8 @@
   var topProgressFill = document.getElementById("topProgressFill");
 
   var toast = document.getElementById("toast");
+
+  var restartTimer = null;
 
   function showToast(msg) {
     toast.style.display = "block";
@@ -46,7 +47,6 @@
     return a.href;
   }
 
-  // ✅ add a milestone after every 5 real steps + final slide at end
   function addMotivationSlides(mediaList) {
     if (!mediaList || mediaList.length === 0) return [];
 
@@ -64,7 +64,7 @@
     for (var i = 0; i < mediaList.length; i++) {
       out.push(mediaList[i]);
 
-      var stepNumber = i + 1; // 1..N
+      var stepNumber = i + 1;
       var isEvery5 = (stepNumber % 5 === 0);
       var notLast = (stepNumber !== mediaList.length);
 
@@ -87,7 +87,6 @@
     return out;
   }
 
-  // ✅ map which indices are real steps
   function rebuildMediaMap() {
     mediaPositions = [];
     for (var i = 0; i < items.length; i++) {
@@ -98,7 +97,6 @@
     totalMedia = mediaPositions.length;
   }
 
-  // ✅ how many real steps have been reached at current idx
   function mediaDoneAt(index) {
     var done = 0;
     for (var i = 0; i < mediaPositions.length; i++) {
@@ -111,6 +109,12 @@
   function renderInto(slide, it) {
     clearSlide(slide);
 
+    // 🔴 STOP previous timer if changing slides
+    if (restartTimer) {
+      clearInterval(restartTimer);
+      restartTimer = null;
+    }
+
     var title = (it && it.title) ? String(it.title) : "";
     var src = absolutize(it && it.src ? String(it.src) : "");
 
@@ -122,7 +126,6 @@
       return;
     }
 
-    // ✅ milestone / final slides (no link, no media controls)
     if (it.type === "milestone" || it.type === "final") {
       var box = document.createElement("div");
       box.style.textAlign = "center";
@@ -132,12 +135,46 @@
 
       var isFinal = (it.type === "final");
 
-      box.innerHTML =
+      var html =
         "<div style='font-size:52px; margin-bottom:10px;'>" + (isFinal ? "🏁" : "✨") + "</div>" +
         "<h2 style='margin:0 0 12px 0; color:#a855f7; font-size:28px;'>" + (it.title || "") + "</h2>" +
-        "<p style='margin:0; font-size:18px; color:#fff; opacity:0.92;'>" + (it.message || "") + "</p>";
+        "<p style='margin:0 0 20px 0; font-size:18px; color:#fff; opacity:0.92;'>" + (it.message || "") + "</p>";
 
+      if (isFinal) {
+        html += "<button id='restartBtn' style='padding:12px 18px; font-size:16px; border:none; border-radius:12px; background:#a855f7; color:#fff;'>Tagasi algusesse 5</button>";
+      }
+
+      box.innerHTML = html;
       slide.appendChild(box);
+
+      if (isFinal) {
+        setTimeout(function () {
+          var btn = document.getElementById("restartBtn");
+          if (!btn) return;
+
+          var count = 5;
+
+          restartTimer = setInterval(function () {
+            count--;
+            if (count > 0) {
+              btn.textContent = "Tagasi algusesse " + count;
+            } else {
+              clearInterval(restartTimer);
+              restartTimer = null;
+              idx = 0;
+              showInitial();
+            }
+          }, 1000);
+
+          btn.onclick = function () {
+            clearInterval(restartTimer);
+            restartTimer = null;
+            idx = 0;
+            showInitial();
+          };
+        }, 0);
+      }
+
       openLink.style.display = "none";
       return;
     }
@@ -153,24 +190,15 @@
     if (it.type === "video") {
       var v = document.createElement("video");
       v.src = src;
-
-      // ✅ remove UI controls
       v.controls = false;
-
-      // TikTok feel
       v.loop = true;
-
-      // Autoplay usually requires muted
       v.muted = true;
       v.autoplay = true;
-
-      // iOS inline
       v.playsInline = true;
       v.setAttribute("playsinline", "playsinline");
 
       slide.appendChild(v);
 
-      // tap to pause/play (also satisfies user gesture requirements)
       v.addEventListener("click", function () {
         if (v.paused) v.play();
         else v.pause();
@@ -242,12 +270,10 @@
 
     renderInto(nextSlide, items[nextIdx]);
 
-    // place next
     nextSlide.style.transition = "none";
     nextSlide.style.transform = (dir === 1) ? "translateY(100%)" : "translateY(-100%)";
-    nextSlide.offsetHeight; // reflow
+    nextSlide.offsetHeight;
 
-    // animate
     nextSlide.style.transition = "transform 220ms ease";
     currentSlide.style.transition = "transform 220ms ease";
     nextSlide.style.transform = "translateY(0)";
@@ -263,7 +289,6 @@
   function next() { transition(1); }
   function prev() { transition(-1); }
 
-  // Swipe
   var startY = null;
 
   wrap.addEventListener("touchstart", function (e) {
@@ -281,13 +306,11 @@
     if (dy < 0) next(); else prev();
   }, { passive: true });
 
-  // Wheel (desktop)
   wrap.addEventListener("wheel", function (e) {
     if (e.deltaY > 0) next();
     else if (e.deltaY < 0) prev();
   });
 
-  // Load auto-generated index (no manifest)
   fetch("media_index.json", { cache: "no-store" })
     .then(function (r) {
       if (!r.ok) throw new Error("media_index.json HTTP " + r.status);
